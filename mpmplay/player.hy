@@ -20,6 +20,12 @@
   (let [sources (get config-db "sources")]
     (db.get-dataset-conn (get (sources.find-one :resolver "beets") "url"))))
 
+(defn get-song-identifier [song]
+  (let [title (get song "title")
+        artist (get song "artist")]
+    (if title (+ title " - " artist)
+        (get song "url"))))
+
 (defclass Player []
   (defn --init-- [self config]
     (setv self.config config)
@@ -39,6 +45,7 @@
     "Play the given song"
     (let [murl (self.parse-mpm-url (get song "url"))
           media (self.vlc-instance.media-new murl)]
+      (print (+ "Playing: " (get-song-identifier song)))
       ;; (self.media-player.set-media media)
       ;; (self.media-player.play)
       (subprocess.run ["mplayer" murl]))))
