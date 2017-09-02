@@ -1,0 +1,3 @@
+#+TITLE: mpm-play
+
+Simple audio player for [[https://github.com/lepisma/mpm][mpm]] based on libvlc.
