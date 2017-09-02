@@ -7,8 +7,9 @@
 (require [mpm.macros [*]])
 
 (defn get-beets-file-url [beets-db beets-id]
-  (let [res (beets-db.query (+ "SELECT path FROM items WHERE id = " beets-id))]
-    (get (first res) "path")))
+  (let [table (get beets-db "items")
+        res (table.find-one :id beets-id)]
+    (+ "file://" (.decode (get res "path") "utf8"))))
 
 (defn get-yt-stream-url [ytid]
   (let [pf (pafy.new ytid :basic False)
