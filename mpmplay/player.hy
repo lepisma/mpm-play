@@ -7,9 +7,11 @@
 (require [mpm.macros [*]])
 
 (defn get-beets-file-url [beets-db beets-id]
-  (let [table (get beets-db "items")
-        res (table.find-one :id beets-id)]
-    (+ "file://" (.decode (get res "path") "utf8"))))
+  (let [res (beets-db.query (+ "SELECT path FROM items WHERE id = " (str beets-id)))
+        file-url (get (first res) "path")]
+    (+ "file://" (if (is (type file-url) bytes)
+                   (.decode file-url "utf8")
+                   file-url))))
 
 (defn get-yt-stream-url [ytid]
   (let [pf (pafy.new ytid :basic False)
@@ -39,7 +41,7 @@
     "Parse mpm url in a playable source"
     (let [[source-type id] (.split url ":")]
       (cond [(= source-type "yt") (get-yt-stream-url id)]
-            [(= source-type "beets") (get-beets-file-url self.beets-db id)]
+            [(= source-type "beets") (get-beets-file-url self.beets-db (int id))]
             [True (raise (NotImplementedError))])))
 
   (defn play [self song]
