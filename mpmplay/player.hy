@@ -2,7 +2,7 @@
 
 (import [mpm.db :as db])
 (import pafy)
-(import vlc)
+(import [mpmplay [vlc]])
 (import subprocess)
 (require [mpm.macros [*]])
 

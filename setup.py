@@ -20,8 +20,7 @@ setup(
         "pyyaml",
         "pafy",
         "hy==0.13.0",
-        "mpm",
-        "python-vlc"
+        "mpm"
     ],
     keywords="",
     packages=find_packages(),
