@@ -4,7 +4,7 @@
 (import pafy)
 (import [mpmplay [vlc]])
 (import subprocess)
-(require [mpm.macros [*]])
+(require [high.macros [*]])
 
 (defn get-beets-file-url [beets-db beets-id]
   (let [res (beets-db.query (+ "SELECT path FROM items WHERE id = " (str beets-id)))
@@ -35,7 +35,10 @@
     (setv self.database (db.get-dataset-conn (get self.config "database")))
     (setv self.beets-db (get-beets-db self.database))
     (setv self.vlc-instance (vlc.Instance))
-    (setv self.media-player (self.vlc-instance.media-player-new)))
+    (setv self.media-player (self.vlc-instance.media-player-new))
+    (setv self.playlist [])
+    (setv self.repeat False)
+    (setv self.random False))
 
   (defn parse-mpm-url [self url]
     "Parse mpm url in a playable source"
@@ -49,6 +52,4 @@
     (let [murl (self.parse-mpm-url (get song "url"))
           media (self.vlc-instance.media-new murl)]
       (print (+ "Playing: " (get-song-identifier song)))
-      ;; (self.media-player.set-media media)
-      ;; (self.media-player.play)
       (subprocess.run ["mplayer" murl]))))

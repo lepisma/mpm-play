@@ -17,7 +17,7 @@ Options:
 (import [mpm.db :as db])
 (import [mpmplay.player [Player]])
 (import yaml)
-(require [mpm.macros [*]])
+(require [high.macros [*]])
 
 (def *default-config* (dict :database "~/.mpm.d/database"))
 
