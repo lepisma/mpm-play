@@ -3,6 +3,7 @@
 (import pafy)
 (import os)
 (import [os.path :as path])
+(import [threading [Thread]])
 (require [high.macros [*]])
 
 (defn get-yt-stream-url [ytid]
@@ -23,14 +24,22 @@
       (setv self.cache-list files)))
 
   (defn download [self song]
-    "Download file in cache. Ignoring limit as of now.")
+    "Download file in cache. Ignoring limit as of now."
+    (let [file-name (path.join self.cache-path (str (get song "id")))
+          ytid (nth (.split (get song "url") ":") 1)
+          pf (pafy.new ytid :basic False)]
+      (.start (Thread :target
+                      (fn []
+                        (.download (pf.getbestaudio)
+                                   :quiet True
+                                   :filepath file-name))))))
 
   (defn get-playable-url [self song]
     "Return playable url."
-    (let [song-id (get song "id")
+    (let [song-id (str (get song "id"))
           url (get song "url")]
       (if (in song-id self.cache-list)
         (path.join self.cache-path song-id)
         (let [ytid (nth (.split url ":") 1)]
-         (self.download song)
-         (get-yt-stream-url ytid))))))
+          (self.download song)
+          (get-yt-stream-url ytid))))))
