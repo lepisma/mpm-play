@@ -1,8 +1,8 @@
 ;; Player
 
 (import [mpm.db :as db])
-(import pafy)
 (import [mpmplay [vlc]])
+(import [mpmplay.cache [Ytcache]])
 (import subprocess)
 (require [high.macros [*]])
 
@@ -12,11 +12,6 @@
     (+ "file://" (if (is (type file-url) bytes)
                    (.decode file-url "utf8")
                    file-url))))
-
-(defn get-yt-stream-url [ytid]
-  (let [pf (pafy.new ytid :basic False)
-        audio (pf.getbestaudio)]
-    audio.url))
 
 (defn get-beets-db [config-db]
   "Return connection to beets db from config-db"
@@ -34,22 +29,21 @@
     (setv self.config config)
     (setv self.database (db.get-dataset-conn (get self.config "database")))
     (setv self.beets-db (get-beets-db self.database))
-    (setv self.vlc-instance (vlc.Instance))
-    (setv self.media-player (self.vlc-instance.media-player-new))
+    (setv self.yt-cache (Ytcache #p"~/.mpm.d/cache" 2000))
     (setv self.playlist [])
     (setv self.repeat False)
     (setv self.random False))
 
-  (defn parse-mpm-url [self url]
-    "Parse mpm url in a playable source"
-    (let [[source-type id] (.split url ":")]
-      (cond [(= source-type "yt") (get-yt-stream-url id)]
+  (defn parse-mpm-url [self song]
+    "Parse song in a playable url"
+    (let [url (get song "url")
+          [source-type id] (.split url ":")]
+      (cond [(= source-type "yt") (self.yt-cache.get-playable-url song)]
             [(= source-type "beets") (get-beets-file-url self.beets-db (int id))]
             [True (raise (NotImplementedError))])))
 
   (defn play [self song]
     "Play the given song"
-    (let [murl (self.parse-mpm-url (get song "url"))
-          media (self.vlc-instance.media-new murl)]
+    (let [murl (self.parse-mpm-url song)]
       (print (+ "Playing: " (get-song-identifier song)))
       (subprocess.run ["mplayer" murl]))))
