@@ -5,11 +5,6 @@
 (import [os.path :as path])
 (require [high.macros [*]])
 
-(defn get-yt-stream-url [ytid]
-  (let [pf (pafy.new ytid :basic False)
-        audio (pf.getbestaudio)]
-    audio.url))
-
 (defclass Ytcache []
   "Cache youtube songs in a local directory"
 
@@ -22,22 +17,22 @@
     (let [files (os.listdir self.cache-path)]
       (setv self.cache-list files)))
 
-  (defn download [self song]
+  (defn save-in-cache [self stream file-name]
     "Download file in cache. Ignoring limit as of now."
-    (let [file-name (path.join self.cache-path (str (get song "id")))
-          ytid (nth (.split (get song "url") ":") 1)
-          pf (pafy.new ytid :basic False)]
+    (let [file-path (path.join self.cache-path file-name)]
       (thread-run
-       (.download (pf.getbestaudio)
+       (.download stream
                   :quiet True
                   :filepath file-name))))
 
   (defn get-playable-url [self song]
     "Return playable url."
     (let [song-id (str (get song "id"))
-          url (get song "url")]
+          ytid (nth (.split (get song "url") ":") 1)]
       (if (in song-id self.cache-list)
         (path.join self.cache-path song-id)
-        (let [ytid (nth (.split url ":") 1)]
-          (self.download song)
-          (get-yt-stream-url ytid))))))
+        (let [stream (.getbestaudio (pafy.new ytid :basic False))]
+          ;; Start thread for downloading song and return
+          ;; the stream url
+          (self.save-in-cache stream song-id)
+          stream.url)))))
