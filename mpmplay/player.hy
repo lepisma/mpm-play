@@ -42,6 +42,7 @@
     (setv self.yt-cache (Ytcache #p(get self.config "cache")))
     (setv self.beets-db (get-beets-db self.database))
     (setv self.playlist [])
+    (setv self.current -1)
     (setv self.repeat False)
     (setv self.random False))
 
@@ -70,6 +71,11 @@
       (print (+ "Playing: " (get-song-identifier song)))
       (subprocess.Popen ["mplayer" murl])))
 
+  (defn get-current-song [self]
+    "Return current song info"
+    (let [song-id (nth self.playlist self.current)]
+      (db.get-song self.database song-id)))
+
   (defn start-server [self]
     "Start music server"
     (setv self.app (Sanic))
@@ -77,8 +83,10 @@
     (route "/"
            (sanic-json "Hello World"))
 
-    (route "/status"
-           (sanic-json "ok"))
+    (route "/current"
+           (if (>= self.current 0)
+             (sanic-json (self.get-current-song))
+             (sanic-json "NA")))
 
     (route "/clear"
            (do
