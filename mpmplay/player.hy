@@ -4,8 +4,8 @@
 (import [mpm.db :as db])
 (import [mpmplay.cache [Ytcache]])
 (import [sanic [Sanic]])
+(import mplayer)
 (import [sanic.response [json :as sanic-json]])
-
 (import subprocess)
 (require [high.macros [*]])
 
@@ -43,7 +43,8 @@
     (setv self.playlist [])
     (setv self.current -1)
     (setv self.repeat False)
-    (setv self.random False))
+    (setv self.random False)
+    (setv self.mplayer-instance (mplayer.Player)))
 
   (defn parse-mpm-url [self song]
     "Parse song in a playable url"
@@ -54,21 +55,24 @@
             [True (rase (NotImplementedError))])))
 
   (defn clear-playlist [self]
-    (setv self.playlist []))
+    (setv self.playlist [])
+    (setv self.current -1))
 
   (defn add-songs [self song-ids]
     (+= self.playlist song-ids))
 
-  (defn stop-song [self]
-    "Stop the player"
-    (subprocess.call ["killall" "mplayer"]))
+  (defn toggle-playback [self]
+    (self.mplayer-instance.pause))
 
-  (defn play-song [self song-id]
-    "Play the given song"
-    (let [song (db.get-song self.database song-id)
+  (defn play-current [self]
+    "Play the current song"
+    (let [current-id (nth self.playlist self.current)
+          song (db.get-song self.database current-id)
           murl (self.parse-mpm-url song)]
       (print (+ "Playing: " (get-song-identifier song)))
-      (subprocess.Popen ["mplayer" murl])))
+      (self.mplayer-instance.loadfile murl)
+      (if self.mplayer-instance.paused
+        (self.mplayer-instance.pause))))
 
   (defn get-current-song [self]
     "Return current song info"
@@ -79,13 +83,15 @@
     "Go back to prev song"
     (if (= self.current 0)
       (setv self.current (- (len self.playlist) 1))
-      (-- self.current)))
+      (-- self.current))
+    (self.play-current))
 
   (defn next-song [self]
     "Next song"
-    (if (= self.current (len self.playlist))
+    (if (= self.current (- (len self.playlist) 1))
       (setv self.current 0)
-      (++ self.current)))
+      (++ self.current))
+    (self.play-current))
 
   (defn start-server [self]
     "Start music server"
@@ -100,13 +106,17 @@
              (sanic-json "NA")))
 
     (route "/next"
-           (if (>= self.current 0)
-             (self.next-song)
+           (if (!= (len self.playlist) 0)
+             (do
+              (self.next-song)
+              (sanic-json "ok"))
              (sanic-json "NA")))
 
     (route "/prev"
-           (if (>= self.current 0)
-             (self.prev-song)
+           (if (!= (len self.playlist) 0)
+             (do
+              (self.prev-song)
+              (sanic-json "ok"))
              (sanic-json "NA")))
 
     (route "/clear"
@@ -119,15 +129,9 @@
              (self.add-songs song-ids)
              (sanic-json "ok")))
 
-    (route "/play"
-           (let [song-id (int (get req.raw_args "id"))]
-             (self.stop-song)
-             (self.play-song song-id)
-             (sanic-json "ok")))
-
-    (rout "/stop"
-          (do
-           (self.stop-song)
-           (sanic-json "ok")))
+    (route "/toggle"
+           (do
+            (self.toggle-playback)
+            (sanic-json "ok")))
 
     (self.app.run :host "127.0.0.1" :port self.port)))
