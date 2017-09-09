@@ -26,10 +26,11 @@
 
 (defclass Player []
   (defn --init-- [self config]
-    (setv self.config config)
     (setv self.database (db.get-dataset-conn (get self.config "database")))
+    (setv self.config (get config "player"))
+    (setv self.port (get self.config "port"))
+    (setv self.yt-cache (Ytcache #p(get self.config "cache")))
     (setv self.beets-db (get-beets-db self.database))
-    (setv self.yt-cache (Ytcache #p (get (get self.config "player") "cache")))
     (setv self.playlist [])
     (setv self.repeat False)
     (setv self.random False))
