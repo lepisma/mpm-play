@@ -3,6 +3,7 @@
 (import pafy)
 (import os)
 (import [os.path :as path])
+(import [mpm.fs :as fs])
 (require [high.macros [*]])
 
 (defclass Ytcache []
@@ -10,6 +11,7 @@
 
   (defn --init-- [self cache-path]
     (setv self.cache-path cache-path)
+    (fs.ensure-dir cache-path)
     (self.init-listing))
 
   (defn init-listing [self]
@@ -22,7 +24,7 @@
       (thread-run
        (.download stream
                   :quiet True
-                  :filepath file-name))
+                  :filepath file-path))
       (self.cache-list.append file-name)))
 
   (defn get-playable-url [self song]
@@ -32,7 +34,6 @@
       (if (in song-id self.cache-list)
         (path.join self.cache-path song-id)
         (let [stream (.getbestaudio (pafy.new ytid :basic False))]
-          ;; Start thread for downloading song and return
-          ;; the stream url
+          ;; Start thread for downloading song and return the stream url
           (self.save-in-cache stream song-id)
           stream.url)))))
