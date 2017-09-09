@@ -6,7 +6,6 @@
 (import [sanic [Sanic]])
 (import mplayer)
 (import [sanic.response [json :as sanic-json]])
-(import subprocess)
 (require [high.macros [*]])
 
 (defn get-beets-file-url [beets-db beets-id]
