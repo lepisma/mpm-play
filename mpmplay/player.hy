@@ -63,6 +63,11 @@
     (route "/status"
            (sanic-json "ok"))
 
+    (route "/clear"
+           (do
+            (self.clear-playlist)
+            (sanic-json "ok")))
+
     (route "/play"
            (let [song-id (int (get req.raw_args "id"))]
              (self.stop-song)
@@ -70,6 +75,9 @@
              (sanic-json "ok")))
 
     (self.app.run :host "127.0.0.1" :port self.port))
+
+  (defn clear-playlist [self]
+    (setv self.playlist []))
 
   (defn stop-song [self]
     "Stop the player"
