@@ -1,0 +1,4 @@
+
+# -*- restclient -*-
+
+GET http://127.0.0.1:6672/play?id=3
