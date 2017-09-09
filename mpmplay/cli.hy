@@ -18,7 +18,7 @@ Options:
 
 (defn get-config [config-file]
   "Return config after reading it from given file."
-  (with [cf (open config-file)]
+  (with [cf (open #pconfig-file)]
         (yaml.load cf)))
 
 (defn cli []
