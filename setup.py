@@ -16,7 +16,6 @@ setup(
     install_requires=[
         "dataset",
         "docopt",
-        "colorama",
         "pyyaml",
         "pafy",
         "hy==0.13.0",
