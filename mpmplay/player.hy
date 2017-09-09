@@ -2,7 +2,6 @@
 
 (import [mpm.mpm [Mpm]])
 (import [mpm.db :as db])
-(import [mpmplay [vlc]])
 (import [mpmplay.cache [Ytcache]])
 (import [sanic [Sanic]])
 (import [sanic.response [json :as sanic-json]])
