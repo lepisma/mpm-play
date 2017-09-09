@@ -8,9 +8,8 @@
 (defclass Ytcache []
   "Cache youtube songs in a local directory"
 
-  (defn --init-- [self cache-path size]
+  (defn --init-- [self cache-path]
     (setv self.cache-path cache-path)
-    (setv self.size size)
     (self.init-listing))
 
   (defn init-listing [self]

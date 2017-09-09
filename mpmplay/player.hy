@@ -29,7 +29,7 @@
     (setv self.config config)
     (setv self.database (db.get-dataset-conn (get self.config "database")))
     (setv self.beets-db (get-beets-db self.database))
-    (setv self.yt-cache (Ytcache #p"~/.mpm.d/cache" 2000))
+    (setv self.yt-cache (Ytcache #p"~/.mpm.d/cache"))
     (setv self.playlist [])
     (setv self.repeat False)
     (setv self.random False))
