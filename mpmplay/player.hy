@@ -53,6 +53,23 @@
             [(= source-type "beets") (get-beets-file-url self.beets-db (int id))]
             [True (rase (NotImplementedError))])))
 
+  (defn clear-playlist [self]
+    (setv self.playlist []))
+
+  (defn add-songs [self song-ids]
+    (+= self.playlist song-ids))
+
+  (defn stop-song [self]
+    "Stop the player"
+    (subprocess.call ["killall" "mplayer"]))
+
+  (defn play-song [self song-id]
+    "Play the given song"
+    (let [song (db.get-song self.database song-id)
+          murl (self.parse-mpm-url song)]
+      (print (+ "Playing: " (get-song-identifier song)))
+      (subprocess.Popen ["mplayer" murl])))
+
   (defn start-server [self]
     "Start music server"
     (setv self.app (Sanic))
@@ -68,24 +85,15 @@
             (self.clear-playlist)
             (sanic-json "ok")))
 
+    (route "/add"
+           (let [song-ids (list (map int (.split (get req.raw_args "ids") ",")))]
+             (self.add-songs song-ids)
+             (sanic-json "ok")))
+
     (route "/play"
            (let [song-id (int (get req.raw_args "id"))]
              (self.stop-song)
              (self.play-song song-id)
              (sanic-json "ok")))
 
-    (self.app.run :host "127.0.0.1" :port self.port))
-
-  (defn clear-playlist [self]
-    (setv self.playlist []))
-
-  (defn stop-song [self]
-    "Stop the player"
-    (subprocess.call ["killall" "mplayer"]))
-
-  (defn play-song [self song-id]
-    "Play the given song"
-    (let [song (db.get-song self.database song-id)
-          murl (self.parse-mpm-url song)]
-      (print (+ "Playing: " (get-song-identifier song)))
-      (subprocess.Popen ["mplayer" murl]))))
+    (self.app.run :host "127.0.0.1" :port self.port)))
