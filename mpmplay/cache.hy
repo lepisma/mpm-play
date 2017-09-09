@@ -23,7 +23,8 @@
       (thread-run
        (.download stream
                   :quiet True
-                  :filepath file-name))))
+                  :filepath file-name))
+      (self.cache-list.append file-name)))
 
   (defn get-playable-url [self song]
     "Return playable url."
