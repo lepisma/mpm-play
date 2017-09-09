@@ -20,7 +20,9 @@ setup(
         "pyyaml",
         "pafy",
         "hy==0.13.0",
-        "mpm"
+        "mpm",
+        "high",
+        "sanic"
     ],
     keywords="",
     packages=find_packages(),
