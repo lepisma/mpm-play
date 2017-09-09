@@ -1,7 +1,7 @@
 (setv *doc* "mpm-play
 
 Usage:
-  mpm-play <id> [--config=<CFG>]
+  mpm-play [--config=<CFG>]
 
   mpm-play -h | --help
   mpm-play -v | --version
@@ -12,9 +12,7 @@ Options:
   --config=<CFG>   Path to config file [default: ~/.mpm.d/config]")
 
 (import [docopt [docopt]])
-(import [mpm.mpm [Mpm]])
 (import [mpm.fs :as fs])
-(import [mpm.db :as db])
 (import [mpmplay.player [Player]])
 (import yaml)
 (require [high.macros [*]])
@@ -28,8 +26,5 @@ Options:
 
 (defn cli []
   (let [args (docopt *doc* :version "mpm-play v0.1.0")
-        config (get-config (get args "--config"))
-        mpm-instance (Mpm config)
-        player (Player config)
-        song-id (int (get args "<id>"))]
-    (player.play (db.get-song mpm-instance.database song-id))))
+        config (get-config (get args "--config"))]
+    (.start-server (Player config))))
