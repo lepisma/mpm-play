@@ -1,8 +1,12 @@
 ;; Player
 
+(import [mpm.mpm [Mpm]])
 (import [mpm.db :as db])
 (import [mpmplay [vlc]])
 (import [mpmplay.cache [Ytcache]])
+(import [sanic [Sanic]])
+(import [sanic.response [json :as sanic-json]])
+
 (import subprocess)
 (require [high.macros [*]])
 
@@ -24,9 +28,15 @@
     (if title (+ title " - " artist)
         (get song "url"))))
 
+(defmacro/g! route [r-path func-body]
+  "Setup route mapping"
+  `(with-decorator (self.app.route ~r-path)
+     (defn ~g!route-func [req] ~func-body)))
+
 (defclass Player []
   (defn --init-- [self config]
-    (setv self.database (db.get-dataset-conn (get config "database")))
+    (setv self.mpm-instance (Mpm config))
+    (setv self.database self.mpm-instance.database)
     (setv self.config (get config "player"))
     (setv self.port (get self.config "port"))
     (setv self.yt-cache (Ytcache #p(get self.config "cache")))
@@ -41,7 +51,15 @@
           [source-type id] (.split url ":")]
       (cond [(= source-type "yt") (self.yt-cache.get-playable-url song)]
             [(= source-type "beets") (get-beets-file-url self.beets-db (int id))]
-            [True (raise (NotImplementedError))])))
+            [True (rase (NotImplementedError))])))
+
+  (defn start-server [self]
+    "Start music server"
+    (setv self.app (Sanic))
+    (route "/" (sanic-json "Hello World"))
+    (route "/status" (sanic-json "ok"))
+
+    (self.app.run :host "127.0.0.1" :port self.port))
 
   (defn play [self song]
     "Play the given song"
