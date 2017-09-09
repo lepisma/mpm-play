@@ -56,13 +56,28 @@
   (defn start-server [self]
     "Start music server"
     (setv self.app (Sanic))
-    (route "/" (sanic-json "Hello World"))
-    (route "/status" (sanic-json "ok"))
+
+    (route "/"
+           (sanic-json "Hello World"))
+
+    (route "/status"
+           (sanic-json "ok"))
+
+    (route "/play"
+           (let [song-id (int (get req.raw_args "id"))]
+             (self.stop-song)
+             (self.play-song song-id)
+             (sanic-json "ok")))
 
     (self.app.run :host "127.0.0.1" :port self.port))
 
-  (defn play [self song]
+  (defn stop-song [self]
+    "Stop the player"
+    (subprocess.call ["killall" "mplayer"]))
+
+  (defn play-song [self song-id]
     "Play the given song"
-    (let [murl (self.parse-mpm-url song)]
+    (let [song (db.get-song self.database song-id)
+          murl (self.parse-mpm-url song)]
       (print (+ "Playing: " (get-song-identifier song)))
-      (subprocess.run ["mplayer" murl]))))
+      (subprocess.Popen ["mplayer" murl]))))
