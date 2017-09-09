@@ -26,7 +26,7 @@
 
 (defclass Player []
   (defn --init-- [self config]
-    (setv self.database (db.get-dataset-conn (get self.config "database")))
+    (setv self.database (db.get-dataset-conn (get config "database")))
     (setv self.config (get config "player"))
     (setv self.port (get self.config "port"))
     (setv self.yt-cache (Ytcache #p(get self.config "cache")))
