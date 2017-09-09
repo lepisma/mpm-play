@@ -76,6 +76,18 @@
     (let [song-id (nth self.playlist self.current)]
       (db.get-song self.database song-id)))
 
+  (defn prev-song [self]
+    "Go back to prev song"
+    (if (= self.current 0)
+      (setv self.current (- (len self.playlist) 1))
+      (-- self.current)))
+
+  (defn next-song [self]
+    "Next song"
+    (if (= self.current (len self.playlist))
+      (setv self.current 0)
+      (++ self.current)))
+
   (defn start-server [self]
     "Start music server"
     (setv self.app (Sanic))
@@ -86,6 +98,16 @@
     (route "/current"
            (if (>= self.current 0)
              (sanic-json (self.get-current-song))
+             (sanic-json "NA")))
+
+    (route "/next"
+           (if (>= self.current 0)
+             (self.next-song)
+             (sanic-json "NA")))
+
+    (route "/prev"
+           (if (>= self.current 0)
+             (self.prev-song)
              (sanic-json "NA")))
 
     (route "/clear"
@@ -103,5 +125,10 @@
              (self.stop-song)
              (self.play-song song-id)
              (sanic-json "ok")))
+
+    (rout "/stop"
+          (do
+           (self.stop-song)
+           (sanic-json "ok")))
 
     (self.app.run :host "127.0.0.1" :port self.port)))
