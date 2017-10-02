@@ -26,10 +26,10 @@
     (if title (+ title " - " artist)
         (get song "url"))))
 
-(defmacro/g! route [r-path func-body]
+(defmacro/g! route [r-path &rest func-body]
   "Setup route mapping"
   `(with-decorator (self.app.route ~r-path)
-     (defn ~g!route-func [req] ~func-body)))
+     (defn ~g!route-func [req] (do ~@func-body))))
 
 (defclass Player []
   (defn --init-- [self config]
@@ -119,9 +119,8 @@
              (sanic-json "NA")))
 
     (route "/clear"
-           (do
-            (self.clear-playlist)
-            (sanic-json "ok")))
+           (self.clear-playlist)
+           (sanic-json "ok"))
 
     (route "/add"
            (let [song-ids (list (map int (.split (get req.raw_args "ids") ",")))]
@@ -129,8 +128,7 @@
              (sanic-json "ok")))
 
     (route "/toggle"
-           (do
-            (self.toggle-playback)
-            (sanic-json "ok")))
+           (self.toggle-playback)
+           (sanic-json "ok"))
 
     (self.app.run :host "127.0.0.1" :port self.port)))
