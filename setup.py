@@ -20,7 +20,6 @@ setup(
         "pafy",
         "hy==0.13.0",
         "mpm",
-        "high",
         "mplayer.py",
         "sanic"
     ],
