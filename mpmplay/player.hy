@@ -59,6 +59,7 @@
     (setv self.current -1))
 
   (defn add-songs [self song-ids]
+    (print (+ "Adding " (str (len song-ids)) " songs"))
     (+= self.playlist song-ids))
 
   (defn toggle-playback [self]
@@ -126,7 +127,6 @@
     (route "/add"
            (let [id-str (first (get req.form "ids"))
                  ids (emap int (.split id-str ","))]
-             (print (+ "Adding " (str (len ids)) " songs"))
              (self.add-songs ids)
              (sanic-json "ok")))
 
