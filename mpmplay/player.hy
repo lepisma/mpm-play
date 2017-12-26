@@ -6,6 +6,7 @@
 (import [sanic [Sanic]])
 (import mplayer)
 (import [sanic.response [json :as sanic-json]])
+(import [high.utils [*]])
 (require [high.macros [*]])
 
 (defn get-beets-file-url [beets-db beets-id]
@@ -28,7 +29,7 @@
 
 (defmacro/g! route [r-path &rest func-body]
   "Setup route mapping"
-  `(with-decorator (self.app.route ~r-path)
+  `(with-decorator (self.app.route ~r-path :methods ["POST" "GET"])
      (defn ~g!route-func [req] (do ~@func-body))))
 
 (defclass Player []
@@ -123,8 +124,10 @@
            (sanic-json "ok"))
 
     (route "/add"
-           (let [song-ids (list (map int (.split (get req.raw_args "ids") ",")))]
-             (self.add-songs song-ids)
+           (let [id-str (first (get req.form "ids"))
+                 ids (emap int (.split id-str ","))]
+             (print (+ "Adding " (str (len ids)) " songs"))
+             (self.add-songs ids)
              (sanic-json "ok")))
 
     (route "/toggle"
