@@ -12,7 +12,7 @@ Options:
   --config=<CFG>   Path to config file [default: ~/.mpm.d/config]")
 
 (import [docopt [docopt]])
-(import [mpmplay.player [Player]])
+(import [mpmplay.server [Server]])
 (import yaml)
 (require [high.macros [*]])
 
@@ -24,4 +24,4 @@ Options:
 (defn cli []
   (let [args (docopt *doc* :version "mpm-play v0.1.0")
         config (get-config (get args "--config"))]
-    (.start-server (Player config))))
+    (.start (Server config))))

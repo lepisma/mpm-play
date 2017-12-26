@@ -32,18 +32,16 @@
   `(with-decorator (self.app.route ~r-path :methods ["POST" "GET"])
      (defn ~g!route-func [req] (do ~@func-body))))
 
-(defclass Player []
+(defclass Server []
   (defn --init-- [self config]
-    (setv self.mpm-instance (Mpm config))
-    (setv self.database self.mpm-instance.database)
+    (setv mpm-instance (Mpm config))
+    (setv self.database mpm-instance.database)
     (setv self.config (get config "player"))
     (setv self.port (get self.config "port"))
     (setv self.yt-cache (Ytcache #p(get self.config "cache")))
     (setv self.beets-db (get-beets-db self.database))
     (setv self.playlist [])
     (setv self.current -1)
-    (setv self.repeat False)
-    (setv self.random False)
     (setv self.mplayer-instance (mplayer.Player)))
 
   (defn parse-mpm-url [self song]
@@ -73,7 +71,7 @@
       (print (+ "Playing: " (get-song-identifier song)))
       (self.mplayer-instance.loadfile murl)
       (if self.mplayer-instance.paused
-        (self.mplayer-instance.pause))))
+        (self.toggle-playback))))
 
   (defn get-current-song [self]
     "Return current song info"
@@ -94,7 +92,7 @@
       (++ self.current))
     (self.play-current))
 
-  (defn start-server [self]
+  (defn start [self]
     "Start music server"
     (setv self.app (Sanic))
 
