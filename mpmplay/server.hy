@@ -95,6 +95,9 @@
   (defn toggle [self]
     (if (not self.should-play) (self.play) (self.pause)))
 
+  (defn seek [self seconds]
+    (if self.should-play (self.mplayer-instance.seek seconds)))
+
   (defn play-current [self]
     "Play the current song"
     (let [song (nth self.playlist self.current)
@@ -147,6 +150,12 @@
                  (do (self.prev-song)
                      (sanic-json "ok"))
                  (sanic-json "NA"))))
+
+    (route "/seek"
+           (with [self.lock]
+             (let [value (int (get req.raw-args "value"))]
+                  (self.seek value)
+                  (sanic-json "ok"))))
 
     (route "/clear"
            (with [self.lock]
