@@ -45,6 +45,7 @@
     (setv self.playlist [])
     (setv self.current -1)
     (setv self.lock (Lock))
+    (setv self.sleep None)
     (setv self.should-play False) ; Internal flag to check in loop
     (setv self.mplayer-instance (Player :args ["-cache" 10000]))
     (setv self.loop (Thread :target self.p-loop))
@@ -119,10 +120,11 @@
 
   (defn next-song [self]
     "Next song"
-    (if (= self.current (- (len self.playlist) 1))
-        (setv self.current 0)
-        (++ self.current))
-    (self.play-current))
+    (if (>= self.sleep 0)
+        (if (= self.current (- (len self.playlist) 1))
+            (setv self.current 0)
+            (++ self.current))
+        (self.play-current)))
 
   (defn start [self]
     "Start music server"
@@ -155,6 +157,12 @@
            (with [self.lock]
              (let [value (int (get req.raw-args "value"))]
                   (self.seek value)
+                  (sanic-json "ok"))))
+
+    (route "/sleep"
+           (with [self.lock]
+             (let [value (int (get req.raw-args "value"))]
+                  (setv self.sleep (if (> value 0) value None))
                   (sanic-json "ok"))))
 
     (route "/clear"
