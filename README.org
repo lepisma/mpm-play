@@ -29,9 +29,6 @@ http ":6672/seek?value=10"
 http :6672/toggle
 #+END_SRC
 
-#+RESULTS:
-: "ok"
-
 #+BEGIN_SRC shell :exports both :results output
 # Sleep after n items
 http ":6672/sleep?value=3"
