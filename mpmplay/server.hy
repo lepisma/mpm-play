@@ -3,6 +3,7 @@
 (import [mpm.mpm [Mpm]])
 (import [mpm.db :as db])
 (import [mpmplay.cache [Ytcache]])
+(import [mpmplay.hooks [run-hook]])
 (import [sanic [Sanic]])
 (import [mplayer [Player]])
 (import [sanic.response [json :as sanic-json]])
@@ -108,7 +109,7 @@
         (let [total-time self.mplayer-instance.length
               current-time self.mplayer-instance.time-pos]
              (if (> current-time (min (* 4 60) (/ total-time 2)))
-                 (do (print "TODO: Song played")
+                 (do (run-hook "song-played" self.config)
                      (setv self.played True)
                      (if self.sleep (-- self.sleep)))))))
 
@@ -119,7 +120,8 @@
           murl (self.parse-mpm-url song)]
          (print (+ "Playing: " (get-song-identifier song)))
          (self.mplayer-instance.loadfile murl)
-         (setv self.should-play True)))
+         (setv self.should-play True)
+         (run-hook "song-changed" self.config)))
 
   (defn get-current-song [self]
     "Return current song info"
