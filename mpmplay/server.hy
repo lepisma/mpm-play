@@ -113,19 +113,19 @@
                      (setv self.played True)
                      (if self.sleep (-- self.sleep)))))))
 
+  (defn get-current-song [self]
+    "Return current song info"
+    (db.get-song self.database (nth self.playlist self.current)))
+
   (defn play-current [self]
     "Play the current song"
     (setv self.played False)
-    (let [song (db.get-song self.database (nth self.playlist self.current))
+    (let [song (get-current-song)
           murl (self.parse-mpm-url song)]
          (print (+ "Playing: " (get-song-identifier song)))
          (self.mplayer-instance.loadfile murl)
          (setv self.should-play True)
          (run-hook "song-changed" self.config)))
-
-  (defn get-current-song [self]
-    "Return current song info"
-    (nth self.playlist self.current))
 
   (defn prev-song [self]
     "Go back to prev song"
