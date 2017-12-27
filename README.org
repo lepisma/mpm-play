@@ -41,7 +41,7 @@ http ":6672/sleep?value=3"
 # Clear and add items
 http :6672/clear
 # Add takes form encoded data
-http -f :6672/add "ids=2,3"
+http -f :6672/add ids="2,3"
 # Play
 http :6672/next
 #+END_SRC
