@@ -1,3 +1,45 @@
 #+TITLE: mpm-play
 
 Simple audio player for [[https://github.com/lepisma/mpm][mpm]] using mplayer.
+
+API endpoints:
+
+#+BEGIN_SRC shell :exports both :results output
+http :6672/
+#+END_SRC
+
+#+RESULTS:
+: "Hello World"
+
+#+BEGIN_SRC shell :exports both :results output
+# Current item in json
+http :6672/current
+#+END_SRC
+
+#+RESULTS:
+: {"id":3,"title":"Even in Death","url":"yt:d_xEVzTDN3c","artist":"Evanescence","album":"Lost Whispers","mtime":1504243645}
+
+#+BEGIN_SRC shell :exports both :results output
+# Next Previous Seek Toggle
+http :6672/next
+http :6672/prev
+http ":6672/seek?value=10"
+http :6672/toggle
+#+END_SRC
+
+#+RESULTS:
+: "ok"
+
+#+BEGIN_SRC shell :exports both :results output
+# Sleep after n items
+http ":6672/sleep?value=3"
+#+END_SRC
+
+#+BEGIN_SRC shell :exports both :results output
+# Clear and add items
+http :6672/clear
+# Add takes form encoded data
+http -f :6672/add "ids=2,3"
+# Play
+http :6672/next
+#+END_SRC
