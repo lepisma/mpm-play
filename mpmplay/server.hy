@@ -46,6 +46,7 @@
     (setv self.current -1)
     (setv self.lock (Lock))
     (setv self.sleep None)
+    (setv self.played False)
     (setv self.should-play False) ; Internal flag to check in loop
     (setv self.mplayer-instance (Player :args ["-cache" 10000]))
     (setv self.loop (Thread :target self.p-loop))
@@ -66,8 +67,10 @@
       (sleep 0.5)
       (with [self.lock]
         (let [state (self.get-state)]
-             (cond  [(and self.should-play (= state "paused")) (self.play)]
-                    [(and self.should-play (= state "done")) (self.next-song)])))))
+             (if self.should-play
+                 (cond [(= state "paused") (self.play)]
+                       [(= state "done") (self.next-song)]
+                       [(= state "playing") (self.mark-played)]))))))
 
   (defn parse-mpm-url [self song]
     "Parse song in a playable url"
@@ -99,8 +102,19 @@
   (defn seek [self seconds]
     (if self.should-play (self.mplayer-instance.seek seconds)))
 
+  (defn mark-played [self]
+    "Mark the current song as played"
+    (if (not self.played)
+        (let [total-time self.mplayer-instance.length
+              current-time self.mplayer-instance.time-pos]
+             (if (> current-time (min (* 4 60) (/ total-time 2)))
+                 (do (print "TODO: Song played")
+                     (setv self.played True)
+                     (if self.sleep (-- self.sleep)))))))
+
   (defn play-current [self]
     "Play the current song"
+    (setv self.played False)
     (let [song (nth self.playlist self.current)
           murl (self.parse-mpm-url song)]
          (print (+ "Playing: " (get-song-identifier song)))
@@ -120,11 +134,11 @@
 
   (defn next-song [self]
     "Next song"
-    (if (>= self.sleep 0)
-        (if (= self.current (- (len self.playlist) 1))
-            (setv self.current 0)
-            (++ self.current))
-        (self.play-current)))
+    (if (or (is self.sleep None) (>= self.sleep 0))
+        (do (if (= self.current (- (len self.playlist) 1))
+                (setv self.current 0)
+                (++ self.current))
+            (self.play-current))))
 
   (defn start [self]
     "Start music server"
