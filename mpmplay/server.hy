@@ -87,7 +87,7 @@
 
   (defn add-songs [self song-ids]
     (print (+ "Adding " (str (len song-ids)) " songs"))
-    (+= self.playlist (emap (fn [i] (db.get-song self.database i)) song-ids)))
+    (+= self.playlist song-ids))
 
   (defn play [self]
     (if (= (self.get-state) "paused") (self.mplayer-instance.pause))
@@ -116,7 +116,7 @@
   (defn play-current [self]
     "Play the current song"
     (setv self.played False)
-    (let [song (nth self.playlist self.current)
+    (let [song (db.get-song self.database (nth self.playlist self.current))
           murl (self.parse-mpm-url song)]
          (print (+ "Playing: " (get-song-identifier song)))
          (self.mplayer-instance.loadfile murl)
