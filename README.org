@@ -17,7 +17,9 @@ http :6672/current
 #+END_SRC
 
 #+RESULTS:
-: {"id":3,"title":"Even in Death","url":"yt:d_xEVzTDN3c","artist":"Evanescence","album":"Lost Whispers","mtime":1504243645}
+: {"id":3,"title":"Even in Death",
+:  "url":"yt:d_xEVzTDN3c","artist":"Evanescence",
+:  "album":"Lost Whispers","mtime":1504243645}
 
 #+BEGIN_SRC shell :exports both :results output
 # Next Previous Seek Toggle
