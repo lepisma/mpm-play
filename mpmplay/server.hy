@@ -49,7 +49,7 @@
     (setv self.sleep None)
     (setv self.played False)
     (setv self.should-play False) ; Internal flag to check in loop
-    (setv self.mplayer-instance (Player :args ["-cache" 10000]))
+    (setv self.mplayer-instance (Player :args ["-cache" 10000 "-novideo"]))
     (setv self.loop (Thread :target self.p-loop))
     (self.loop.start))
 
