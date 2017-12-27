@@ -120,7 +120,7 @@
   (defn play-current [self]
     "Play the current song"
     (setv self.played False)
-    (let [song (get-current-song)
+    (let [song (self.get-current-song)
           murl (self.parse-mpm-url song)]
          (print (+ "Playing: " (get-song-identifier song)))
          (self.mplayer-instance.loadfile murl)
