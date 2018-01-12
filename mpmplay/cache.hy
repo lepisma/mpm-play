@@ -3,7 +3,7 @@
 (import pafy)
 (import os)
 (import [os.path :as path])
-(import [mpm.fs :as fs])
+(import [high.utils [*]])
 (require [high.macros [*]])
 
 (defclass Ytcache []
@@ -11,7 +11,7 @@
 
   (defn --init-- [self cache-path]
     (setv self.cache-path cache-path)
-    (fs.ensure-dir cache-path)
+    (ensure-dir cache-path)
     (self.init-listing))
 
   (defn init-listing [self]
