@@ -50,3 +50,11 @@ http :6672/repeat
 
 #+RESULTS:
 : true
+
+#+BEGIN_SRC shell :exports both :results output
+# Get player state
+http :6672/state
+#+END_SRC
+
+#+RESULTS:
+: {"repeat":false,"sleep":null,"list-length":41,"current":2,"played":false}
