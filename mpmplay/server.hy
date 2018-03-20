@@ -199,4 +199,11 @@
            (self.toggle-repeat)
            (sanic-json self.repeat))
 
+    (route "/state"
+           (sanic-json {"repeat" self.repeat
+                        "sleep" self.sleep
+                        "list-length" (len self.playlist)
+                        "current" self.current
+                        "played" self.played}))
+
     (self.app.run :host "127.0.0.1" :port self.port)))
