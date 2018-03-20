@@ -33,7 +33,8 @@
 (defmacro/g! route [r-path &rest func-body]
   "Setup route mapping"
   `(with-decorator (self.app.route ~r-path :methods ["POST" "GET"])
-     (defn ~g!route-func [req] (do ~@func-body))))
+     (defn ~g!route-func [req] (with [self.lock]
+                                 (do ~@func-body)))))
 
 (defclass Server []
   (defn --init-- [self config]
@@ -47,6 +48,7 @@
     (setv self.current -1)
     (setv self.lock (Lock))
     (setv self.sleep None)
+    (setv self.repeat False)
     (setv self.played False)
     (setv self.should-play False) ; Internal flag to check in loop
     (setv self.mplayer-instance (Player :args ["-cache" 10000 "-novideo"]))
@@ -100,6 +102,9 @@
   (defn toggle [self]
     (if (not self.should-play) (self.play) (self.pause)))
 
+  (defn toggle-repeat [self]
+    (setv self.repeat (not self.repeat)))
+
   (defn seek [self seconds]
     (if self.should-play (self.mplayer-instance.seek seconds)))
 
@@ -129,17 +134,17 @@
 
   (defn prev-song [self]
     "Go back to prev song"
-    (if (= self.current 0)
-        (setv self.current (- (len self.playlist) 1))
-        (-- self.current))
+    (cond [self.repeat]
+          [(= self.current 0) (setv self.current (- (len self.playlist) 1))]
+          [True (-- self.current)])
     (self.play-current))
 
   (defn next-song [self]
     "Next song"
     (if (or (is self.sleep None) (>= self.sleep 0))
-        (do (if (= self.current (- (len self.playlist) 1))
-                (setv self.current 0)
-                (++ self.current))
+        (do (cond [self.repeat]
+                  [(= self.current (- (len self.playlist) 1)) (setv self.current 0)]
+                  [True (++ self.current)])
             (self.play-current))))
 
   (defn start [self]
@@ -150,52 +155,48 @@
            (sanic-json "Hello World"))
 
     (route "/current"
-           (with [self.lock]
-             (if (>= self.current 0)
-                 (sanic-json (self.get-current-song))
-                 (sanic-json "NA"))))
+           (if (>= self.current 0)
+               (sanic-json (self.get-current-song))
+               (sanic-json "NA")))
 
     (route "/next"
-           (with [self.lock]
-             (if (!= (len self.playlist) 0)
-                 (do (self.next-song)
-                     (sanic-json "ok"))
-                 (sanic-json "NA"))))
+           (if (!= (len self.playlist) 0)
+               (do (self.next-song)
+                   (sanic-json "ok"))
+               (sanic-json "NA")))
 
     (route "/prev"
-           (with [self.lock]
-             (if (!= (len self.playlist) 0)
-                 (do (self.prev-song)
-                     (sanic-json "ok"))
-                 (sanic-json "NA"))))
+           (if (!= (len self.playlist) 0)
+               (do (self.prev-song)
+                   (sanic-json "ok"))
+               (sanic-json "NA")))
 
     (route "/seek"
-           (with [self.lock]
-             (let [value (int (get req.raw-args "value"))]
-                  (self.seek value)
-                  (sanic-json "ok"))))
+           (let [value (int (get req.raw-args "value"))]
+                (self.seek value)
+                (sanic-json "ok")))
 
     (route "/sleep"
-           (with [self.lock]
-             (let [value (int (get req.raw-args "value"))]
-                  (setv self.sleep (if (> value 0) value None))
-                  (sanic-json "ok"))))
+           (let [value (int (get req.raw-args "value"))]
+                (setv self.sleep (if (> value 0) value None))
+                (sanic-json "ok")))
 
     (route "/clear"
-           (with [self.lock]
-             (self.clear-playlist)
-             (sanic-json "ok")))
+           (self.clear-playlist)
+           (sanic-json "ok"))
 
     (route "/add"
-           (with [self.lock]
-             (let [id-str (first (get req.form "ids"))
-                   ids (emap int (.split id-str ","))]
-                  (self.add-songs ids)
-                  (sanic-json "ok"))))
+           (let [id-str (first (get req.form "ids"))
+                 ids (emap int (.split id-str ","))]
+                (self.add-songs ids)
+                (sanic-json "ok")))
 
     (route "/toggle"
-           (with [self.lock]
-             (self.toggle)
-             (sanic-json "ok")))
+           (self.toggle)
+           (sanic-json "ok"))
+
+    (route "/repeat"
+           (self.toggle-repeat)
+           (sanic-json self.repeat))
 
     (self.app.run :host "127.0.0.1" :port self.port)))

@@ -42,3 +42,11 @@ http -f :6672/add ids="2,3"
 # Play
 http :6672/next
 #+END_SRC
+
+#+BEGIN_SRC shell :exports both :results output
+# Toggle repeat
+http :6672/repeat
+#+END_SRC
+
+#+RESULTS:
+: true
