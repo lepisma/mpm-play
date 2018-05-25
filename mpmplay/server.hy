@@ -2,7 +2,7 @@
 
 (import [mpm.mpm [Mpm]])
 (import [mpm.db :as db])
-(import [mpmplay.cache [Ytcache]])
+(import [mpmplay.cache [Ytcache first-hit-url]])
 (import [mpmplay.hooks [run-hook]])
 (import [sanic [Sanic]])
 (import [mplayer [Player]])
@@ -25,7 +25,9 @@
                         file-url)]
        (if (os.path.exists decoded-url)
            (+ "file://" decoded-url)
-           (raise (Exception)))))
+           (progn
+             (print "Local file not found, using youtube search fallback")
+             (first-hit-url song)))))
 
 (defn get-beets-db [config-db]
   "Return connection to beets db from config-db"

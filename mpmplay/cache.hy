@@ -5,6 +5,23 @@
 (import [os.path :as path])
 (import [high.utils [*]])
 (require [high.macros [*]])
+(import requests)
+(import [eep [Searcher]])
+
+(defn search-yt [search-term]
+  "Search for term in youtube and return first youtube url"
+  (let [params (dict :search_query search-term)
+        res (requests.get "https://youtube.com/results" :params params)
+        es (Searcher res.text)]
+       (es.search-forward "watch?v=")
+       (es.jump 11)
+       (+ "https://youtube.com/" (es.get-sub))))
+
+(defn first-hit-url [song]
+  "Return a playable stream using the first hit data"
+  (let [yturl (search-yt (+ (get song "title") " " (get song "artist")))
+        stream (.getbestaudio (pafy.new :url yturl :basic False))]
+       stream.url))
 
 (defclass Ytcache []
   "Cache youtube songs in a local directory"
