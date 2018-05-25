@@ -10,14 +10,22 @@
 (import [high.utils [*]])
 (import [threading [Lock Thread]])
 (import [time [sleep]])
+(import os)
 (require [high.macros [*]])
 
+(defn get-beets-song [beets-db beets-id]
+  (let [res (beets-db.query (+ "SELECT title, artist, album, path from items WHERE id = " (str beets-id)))]
+       (first res)))
+
 (defn get-beets-file-url [beets-db beets-id]
-  (let [res (beets-db.query (+ "SELECT path FROM items WHERE id = " (str beets-id)))
-        file-url (get (first res) "path")]
-       (+ "file://" (if (is (type file-url) bytes)
+  (let [song (get-beets-song beets-db beets-id)
+        file-url (get song "path")
+        decoded-url (if (is (type file-url) bytes)
                         (.decode file-url "utf8")
-                        file-url))))
+                        file-url)]
+       (if (os.path.exists decoded-url)
+           (+ "file://" decoded-url)
+           (raise (Exception)))))
 
 (defn get-beets-db [config-db]
   "Return connection to beets db from config-db"
