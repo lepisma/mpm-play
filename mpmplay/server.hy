@@ -25,7 +25,7 @@
                         file-url)]
        (if (os.path.exists decoded-url)
            (+ "file://" decoded-url)
-           (progn
+           (do
              (print "Local file not found, using youtube search fallback")
              (first-hit-url song)))))
 
