@@ -17,11 +17,10 @@
        (es.jump 11)
        (+ "https://youtube.com/" (es.get-sub))))
 
-(defn first-hit-url [song]
-  "Return a playable stream using the first hit data"
-  (let [yturl (search-yt (+ (get song "title") " " (get song "artist")))
-        stream (.getbestaudio (pafy.new :url yturl :basic False))]
-       stream.url))
+(defn first-hit-stream [song]
+  "Return a stream using the first hit data"
+  (let [yturl (search-yt (+ (get song "title") " " (get song "artist")))]
+       (.getbestaudio (pafy.new :url yturl :basic False))))
 
 (defclass Ytcache []
   "Cache youtube songs in a local directory"
@@ -33,24 +32,28 @@
 
   (defn init-listing [self]
     (let [files (os.listdir self.cache-path)]
-      (setv self.cache-list files)))
+         (setv self.cache-list files)))
 
   (defn save-in-cache [self stream file-name]
     "Download file in cache. Ignoring limit as of now."
     (let [file-path (path.join self.cache-path file-name)]
-      (thread-run
-       (.download stream
-                  :quiet True
-                  :filepath file-path))
-      (self.cache-list.append file-name)))
+         (thread-run
+           (.download stream
+                      :quiet True
+                      :filepath file-path))
+         (self.cache-list.append file-name)))
 
   (defn get-playable-url [self song]
-    "Return playable url."
+    "Return playable url. If the url is not of youtube type, then use a first hit url"
     (let [song-id (str (get song "id"))
-          ytid (nth (.split (get song "url") ":") 1)]
-      (if (in song-id self.cache-list)
-        (path.join self.cache-path song-id)
-        (let [stream (.getbestaudio (pafy.new ytid :basic False))]
-          ;; Start thread for downloading song and return the stream url
-          (self.save-in-cache stream song-id)
-          stream.url)))))
+          url-splits (.split (get song "url") ":")
+          url-type (first url-splits)
+          url-id (second url-splits)]
+         (if (in song-id self.cache-list)
+             (path.join self.cache-path song-id)
+             (let [stream (if (= url-type "yt")
+                              (.getbestaudio (pafy.new url-id :basic False))
+                              (first-hit-stream song))]
+                  ;; Start thread for downloading song and return the stream url
+                  (self.save-in-cache stream song-id)
+                  stream.url)))))
