@@ -17,12 +17,14 @@ pafy = "^0.5.4"
 youtube-dl = "^2018.9"
 high = "0.1.1"
 mpm = "0.1.1"
+pylast = "^2.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
 
 [tool.poetry.scripts]
 mpm-play = "mpmplay.cli:cli"
+mpm-scrobble = "mpmplay.scrobble:cli"
 
 [[tool.poetry.source]]
 name = "personal"

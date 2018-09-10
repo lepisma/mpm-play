@@ -13,6 +13,7 @@ Options:
 
 (import [docopt [docopt]])
 (import [mpmplay.server [Server]])
+(import [mpmplay [--version--]])
 (import yaml)
 (require [high.macros [*]])
 
@@ -22,6 +23,6 @@ Options:
         (yaml.load cf)))
 
 (defn cli []
-  (let [args (docopt *doc* :version "mpm-play v0.1.0")
+  (let [args (docopt *doc* :version --version--)
         config (get-config (get args "--config"))]
     (.start (Server config))))
