@@ -14,8 +14,15 @@ sanic = "^0.8.1"
 pyyaml = "^3.13"
 "mplayer.py" = "^0.7.1"
 pafy = "^0.5.4"
+youtube-dl = "^2018.9"
+high = "0.1.1"
 
 [tool.poetry.dev-dependencies]
+pytest = "^3.8"
 
 [tool.poetry.scripts]
 mpm-play = "mpmplay.cli:cli"
+
+[[tool.poetry.source]]
+name = "personal"
+url = "https://lepisma.github.io/pypi"
