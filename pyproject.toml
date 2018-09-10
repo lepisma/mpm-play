@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "mpmplay"
+version = "0.1.0"
+description = "Player for mpm"
+authors = ["Abhinav Tushar <lepisma@fastmail.com>"]
+license = "GPL-3.0"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+dataset = "^1.1"
+hy = "0.13.0"
+docopt = "^0.6.2"
+sanic = "^0.8.1"
+pyyaml = "^3.13"
+"mplayer.py" = "^0.7.1"
+pafy = "^0.5.4"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+mpm-play = "mpmplay.cli:cli"
