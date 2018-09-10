@@ -16,6 +16,7 @@ pyyaml = "^3.13"
 pafy = "^0.5.4"
 youtube-dl = "^2018.9"
 high = "0.1.1"
+mpm = "0.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
