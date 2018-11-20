@@ -100,4 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 /pyproject.lock
+/poetry.lock
 /.pytest_cache
