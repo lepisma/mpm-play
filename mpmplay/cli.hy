@@ -20,7 +20,7 @@ Options:
 (defn get-config [config-file]
   "Return config after reading it from given file."
   (with [cf (open #pconfig-file)]
-        (yaml.load cf)))
+    (yaml.load cf)))
 
 (defn cli []
   (let [args (docopt *doc* :version --version--)

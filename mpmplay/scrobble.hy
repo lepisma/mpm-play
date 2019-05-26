@@ -37,10 +37,10 @@ Options:
 (defn get-item [log-entry mpm-instance]
   "Get the item represented in the entry"
   (let [song (db.get-song mpm-instance.database (second log-entry))]
-       {"artist" (get song "artist")
-        "title" (get song "title")
-        "album" (get song "album")
-        "timestamp" (first log-entry)}))
+    {"artist" (get song "artist")
+     "title" (get song "title")
+     "album" (get song "album")
+     "timestamp" (first log-entry)}))
 
 (defn filter-entries [log-entries timestamp mpm-instance]
   "Remove entries older than the timestamp"
@@ -49,10 +49,10 @@ Options:
 
 (defn scrobble [log-entries lastfm-network mpm-instance]
   (let [items (emap (fn [it] (get-item it mpm-instance)) log-entries)]
-       (if (= (len items) 0)
-           (print "Nothing to do")
-           (do (print (+ "Scrobbling " (str (len items)) " items"))
-               (lastfm-network.scrobble-many items)))))
+    (if (= (len items) 0)
+        (print "Nothing to do")
+        (do (print (+ "Scrobbling " (str (len items)) " items"))
+            (lastfm-network.scrobble-many items)))))
 
 (defn update-last-scrobble [file-name]
   (with [fp (open file-name "w")]
@@ -66,6 +66,6 @@ Options:
         scrobbled-at-file #p(get args "--scrobbled-at")
         last-scrobble (with-fp (ensure-file scrobbled-at-file "0") (int (fp.read)))
         lastfm-network (apply LastFMNetwork [] lastfm-config)]
-       (scrobble (filter-entries log-entries last-scrobble mpm-instance) lastfm-network mpm-instance)
-       (update-last-scrobble scrobbled-at-file)
-       (exit 0)))
+    (scrobble (filter-entries log-entries last-scrobble mpm-instance) lastfm-network mpm-instance)
+    (update-last-scrobble scrobbled-at-file)
+    (exit 0)))

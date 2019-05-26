@@ -10,5 +10,5 @@
 (defn run-hook [hook-name config]
   "Run the given hook, taking script from the config"
   (let [hooks (get config "hooks")]
-       (if (in hook-name hooks)
-           (run-cmd (get hooks hook-name)))))
+    (if (in hook-name hooks)
+        (run-cmd (get hooks hook-name)))))

@@ -15,7 +15,7 @@
 
 (defn get-beets-song [beets-db beets-id]
   (let [res (beets-db.query (+ "SELECT title, artist, album, path from items WHERE id = " (str beets-id)))]
-       (first res)))
+    (first res)))
 
 (defn get-beets-file-url [beets-db beets-id]
   (let [song (get-beets-song beets-db beets-id)
@@ -23,20 +23,20 @@
         decoded-url (if (is (type file-url) bytes)
                         (.decode file-url "utf8")
                         file-url)]
-       (if (os.path.exists decoded-url)
-           (+ "file://" decoded-url)
-           (raise FileNotFoundError))))
+    (if (os.path.exists decoded-url)
+        (+ "file://" decoded-url)
+        (raise FileNotFoundError))))
 
 (defn get-beets-db [config-db]
   "Return connection to beets db from config-db"
   (let [sources (get config-db "sources")]
-       (db.get-dataset-conn (get (sources.find-one :resolver "beets") "url"))))
+    (db.get-dataset-conn (get (sources.find-one :resolver "beets") "url"))))
 
 (defn get-song-identifier [song]
   (let [title (get song "title")
         artist (get song "artist")]
-       (if title (+ title " - " artist)
-           (get song "url"))))
+    (if title (+ title " - " artist)
+        (get song "url"))))
 
 (defmacro/g! route [r-path &rest func-body]
   "Setup route mapping"
@@ -78,22 +78,22 @@
       (sleep 0.5)
       (with [self.lock]
         (let [state (self.get-state)]
-             (if self.should-play
-                 (cond [(= state "paused") (self.play)]
-                       [(= state "done") (self.next-song)]
-                       [(= state "playing") (self.mark-played)]))))))
+          (if self.should-play
+              (cond [(= state "paused") (self.play)]
+                    [(= state "done") (self.next-song)]
+                    [(= state "playing") (self.mark-played)]))))))
 
   (defn parse-mpm-url [self song]
     "Parse song in a playable url"
     (let [url (get song "url")
           [source-type id] (.split url ":")]
-         (cond [(= source-type "yt") (self.yt-cache.get-playable-url song)]
-               [(= source-type "beets") (try
-                                          (get-beets-file-url self.beets-db (int id))
-                                          (except [FileNotFoundError]
-                                            (do (print "Local file not found, using youtube fallback")
-                                                (self.yt-cache.get-playable-url song))))]
-               [True (raise (NotImplementedError))])))
+      (cond [(= source-type "yt") (self.yt-cache.get-playable-url song)]
+            [(= source-type "beets") (try
+                                       (get-beets-file-url self.beets-db (int id))
+                                       (except [FileNotFoundError]
+                                         (do (print "Local file not found, using youtube fallback")
+                                             (self.yt-cache.get-playable-url song))))]
+            [True (raise (NotImplementedError))])))
 
   (defn clear-playlist [self]
     (setv self.playlist [])
@@ -125,10 +125,10 @@
     (if (not self.played)
         (let [total-time self.mplayer-instance.length
               current-time self.mplayer-instance.time-pos]
-             (if (> current-time (min (* 4 60) (/ total-time 2)))
-                 (do (run-hook "song-played" self.config)
-                     (setv self.played True)
-                     (if self.sleep (-- self.sleep)))))))
+          (if (> current-time (min (* 4 60) (/ total-time 2)))
+              (do (run-hook "song-played" self.config)
+                  (setv self.played True)
+                  (if self.sleep (-- self.sleep)))))))
 
   (defn get-current-song [self]
     "Return current song info"
@@ -139,10 +139,10 @@
     (setv self.played False)
     (let [song (self.get-current-song)
           murl (self.parse-mpm-url song)]
-         (print (+ "Playing: " (get-song-identifier song)))
-         (self.mplayer-instance.loadfile murl)
-         (setv self.should-play True)
-         (run-hook "song-changed" self.config)))
+      (print (+ "Playing: " (get-song-identifier song)))
+      (self.mplayer-instance.loadfile murl)
+      (setv self.should-play True)
+      (run-hook "song-changed" self.config)))
 
   (defn prev-song [self]
     "Go back to prev song"
@@ -185,13 +185,13 @@
 
     (route "/seek"
            (let [value (int (get req.raw-args "value"))]
-                (self.seek value)
-                (sanic-json "ok")))
+             (self.seek value)
+             (sanic-json "ok")))
 
     (route "/sleep"
            (let [value (int (get req.raw-args "value"))]
-                (setv self.sleep (if (> value 0) value None))
-                (sanic-json "ok")))
+             (setv self.sleep (if (> value 0) value None))
+             (sanic-json "ok")))
 
     (route "/clear"
            (self.clear-playlist)
@@ -200,8 +200,8 @@
     (route "/add"
            (let [id-str (first (get req.form "ids"))
                  ids (emap int (.split id-str ","))]
-                (self.add-songs ids)
-                (sanic-json "ok")))
+             (self.add-songs ids)
+             (sanic-json "ok")))
 
     (route "/toggle"
            (self.toggle)
