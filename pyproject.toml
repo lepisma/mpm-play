@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mpmplay"
-version = "0.1.2"
+version = "0.1.3"
 description = "Player for mpm"
 authors = ["Abhinav Tushar <lepisma@fastmail.com>"]
 license = "GPL-3.0"
