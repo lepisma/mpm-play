@@ -28,4 +28,4 @@ mpm-scrobble = "mpmplay.scrobble:cli"
 
 [[tool.poetry.source]]
 name = "personal"
-url = "https://lepisma.github.io/pypi"
+url = "https://lepisma.xyz/pypi"
